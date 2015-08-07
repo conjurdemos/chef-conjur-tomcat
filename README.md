@@ -1,11 +1,33 @@
 # chef-conjur-tomcat
 
-An example of laying down Tomcat application properties files with Chef using secrets
-from Conjur.
+Inserting secrets into a Tomcat application property file using Chef and Conjur.
 
-## Walkthrough
+In this tutorial, we'll:
 
-### 1. Apply the policy
+1. Create a host-factory that can bootstrap Conjur hosts into a layer
+2. Give that layer access to two secrets
+3. Converge a Chef run that:
+    1. Assigns an identity to the host, given a host-factory token
+    2. Inserts secrets into a Tomcat appliation property file
+
+## Setup
+
+You'll need a Conjur appliance running and accessible from your workstation.
+[Contact us](mailto:info@conjur.net) for one if you don't already have it.
+
+1. Install the [ChefDK](https://downloads.chef.io/chef-dk/).
+We'll use [test-kitchen](http://kitchen.ci/) and [berkshelf](http://berkshelf.com/) to converge the node.
+2. Install [Docker](http://docs.docker.com/).
+If you're on OSX, use [docker-machine](https://docs.docker.com/machine/) or [boot2docker](http://boot2docker.io/) to create a VM.
+3. Install the [kitchen-docker](https://github.com/portertech/kitchen-docker) driver.
+
+    ```sh-session
+    $ chef gem install kitchen-docker
+    ```
+
+## Tutorial
+
+### 1. Apply the Conjur policy
 
 Our security policy is defined in [policy.rb](policy.rb).
 Read this before moving on.
@@ -23,11 +45,11 @@ $ conjur policy load --as-group security_admin --collection demo policy.rb
 
 The long string here is your host-factory token, the bearer token that you will use to bootstrap
 new hosts into the `tomcast_hosts` layer. The token is valid for 7 days, as defined in the policy.
-You will use this token in Step 2.
+You will use this token in Step 3.
 
 ### 2. Add values to your secrets
 
-Our policy defined the names of secrets and permission on them, but did not give them an initial value.
+Our policy defined the names of secrets and permissions to them, but did not give them an initial value.
 That's why we can check out policy into source control, it contains no sensitive information.
 
 Let's view our secrets with the Conjur CLI:
@@ -38,7 +60,7 @@ $ conjur variable list -i
 "dustinops:variable:demo/tomcat_policy/api_key"
 ```
 
-We ran the policy with the collection 'demo', so that is our namespace.
+We applied the policy with the collection 'demo', so that is our namespace.
 
 This is how it breaks down.
 
@@ -80,5 +102,18 @@ Our host has now been bootstrapped in the 'tomcat_hosts' layer.
 You can verify its permissions in the Conjur UI at `/ui/hosts/myhost5158/`.
 
 ![Conjur UI host detail](https://i.imgur.com/dJwXhpn.png)
+
+Log into the host and view the property file. It now contains the values you entered
+for the variables defined in your policy.
+
+```sh-session
+$ kitchen login  # use 'kitchen' as the password if prompted
+$ cat /etc/myapp.xml
+<Context docBase="${basedir}/src/main/webapp" reloadable="true">
+  <!-- http://tomcat.apache.org/tomcat-7.0-doc/config/context.html -->
+  <Parameter name="database_password" value="dy9hA6glyd8Tann5yEj5"/>
+  <Environment name="app.devel.api" value="nUp3Ji4op1Hu6flEc3oj" type="java.lang.String" override="true"/>
+</Context>
+```
 
 
