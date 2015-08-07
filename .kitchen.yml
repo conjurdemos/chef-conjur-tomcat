@@ -1,0 +1,27 @@
+---
+driver:
+  name: docker
+
+driver_config:
+  socket: <%= ENV['DOCKER_HOST'] || 'unix:///var/run/docker.sock' %>
+  volume: <%= ENV['CONJUR_SSL_CERTIFICATE_PATH'] %>:/etc/conjur-<%= ENV['CONJUR_ACCOUNT'] %>.pem
+
+provisioner:
+  name: chef_zero
+  require_chef_omnibus: 12.4.1
+
+platforms:
+  - name: ubuntu-14.04
+
+suites:
+  - name: default
+    run_list:
+      - recipe[chef-conjur-tomcat::default]
+    attributes:
+      conjur:
+        configuration:
+          account: <%= ENV['CONJUR_ACCOUNT'] %>
+          appliance_url: <%= ENV['CONJUR_APPLIANCE_URL'] %>
+        host_factory_token: <%= ENV['CONJUR_HOST_FACTORY_TOKEN'] %>
+        host_identity:
+          id: <%= ENV['CONJUR_HOST_IDENTITY'] %>

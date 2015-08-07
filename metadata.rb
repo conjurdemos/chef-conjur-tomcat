@@ -1,0 +1,11 @@
+name 'chef-conjur-tomcat'
+maintainer 'The Authors'
+maintainer_email 'you@example.com'
+license 'all_rights'
+description 'Installs/Configures chef-conjur-tomcat'
+long_description 'Installs/Configures chef-conjur-tomcat'
+version '0.1.0'
+
+depends 'build-essential', '~> 2.2.3'
+depends 'conjur', '~> 0.2.1'
+depends 'conjur-host-identity', '~> 1.0.2'
