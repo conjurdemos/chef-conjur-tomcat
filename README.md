@@ -50,7 +50,7 @@ You will use this token in Step 3.
 ### 2. Add values to your secrets
 
 Our policy defined the names of secrets and permissions to them, but did not give them an initial value.
-That's why we can check out policy into source control, it contains no sensitive information.
+That's why we can check our policy into source control, it contains no sensitive information.
 
 Let's view our secrets with the Conjur CLI:
 
