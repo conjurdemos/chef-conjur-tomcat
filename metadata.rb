@@ -6,6 +6,7 @@ description 'Installs/Configures chef-conjur-tomcat'
 long_description 'Installs/Configures chef-conjur-tomcat'
 version '0.1.0'
 
+depends 'apt'
 depends 'build-essential', '~> 2.2.3'
 depends 'conjur', '~> 0.2.1'
 depends 'conjur-host-identity', '~> 1.0.2'
