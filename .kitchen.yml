@@ -1,6 +1,7 @@
 ---
 driver:
   name: docker
+  use_sudo: false
 
 driver_config:
   socket: <%= ENV['DOCKER_HOST'] || 'unix:///var/run/docker.sock' %>
