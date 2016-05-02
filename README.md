@@ -29,22 +29,35 @@ If you're on OSX, use [docker-machine](https://docs.docker.com/machine/) or [boo
 
 ### 1. Apply the Conjur policy
 
-Our security policy is defined in [policy.rb](policy.rb).
+Our security policy is defined in [policy.yml](policy.yml).
 Read this before moving on.
 
 Apply the policy:
 
 ```sh-session
-$ conjur policy load --as-group security_admin --collection demo policy.rb
+$ conjur policy load --namespace demo --as-group security_admin policy.yml
+Create policy role 'demo/webapp1'
 ...
-"host_factory_tokens": {
-    "tomcat_hosts": "2qf26ke3e9yzrc1qdz6tv3bzv35p2c6669t22x89n52895xpf1569ks6"
+{}
+```  
+
+Now we can create a host factory token using the host factory loaded in the policy.
+
+```sh-session
+$ conjur hostfactory tokens create --duration-days 7 demo/webapp1/tomcat_factory
+[
+  {
+    "token": "gn9gmre42zj1s0hz4g2gckgjn1k9dvw311jqe8z2qmd4b41gqw1mk",
+    "expiration": "2016-05-09T18:21:10+00:00",
+    "cidr": [
+
+    ]
   }
-}
+]
 ```
 
-The long string here is your host-factory token, the bearer token that you will use to bootstrap
-new hosts into the `tomcast_hosts` layer. The token is valid for 7 days, as defined in the policy.
+The "token" field above is your host-factory token, the bearer token that you will use to bootstrap
+new hosts into the `tomcast_hosts` layer. The token is valid for 7 days, as we've requested in the command above.
 You will use this token in Step 3.
 
 ### 2. Add values to your secrets
